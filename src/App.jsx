@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminUsersPage from './pages/AdminUsersPage'
+import AdminProductsPage from './pages/AdminProductsPage'
+import ProductsPage from './pages/ProductsPage'
 import HealthPage from './pages/HealthPage'
 import NotFoundPage from './pages/NotFoundPage'
 
@@ -18,6 +20,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/health" element={<HealthPage />} />
+          <Route path="/products" element={<ProductsPage />} />
           <Route
             path="/profile"
             element={
@@ -31,6 +34,14 @@ export default function App() {
             element={
               <ProtectedRoute adminOnly>
                 <AdminUsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminProductsPage />
               </ProtectedRoute>
             }
           />
