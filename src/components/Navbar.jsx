@@ -16,11 +16,13 @@ export default function Navbar() {
         <Link to="/">Ecommerce</Link>
       </div>
       <div className="navbar-links">
+        <Link to="/products">Products</Link>
         <Link to="/health">Status</Link>
         {isAuthenticated ? (
           <>
             <Link to="/profile">Profile</Link>
             {isAdmin && <Link to="/admin/users">Users</Link>}
+            {isAdmin && <Link to="/admin/products">Products</Link>}
             <span className="navbar-user">{user?.email}</span>
             <button type="button" onClick={handleLogout} className="btn btn-secondary">
               Log out
