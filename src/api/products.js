@@ -1,8 +1,10 @@
 import apiClient from './client'
 
-// GET /products?page&limit -> PaginatedProductsResponseDto (public, no auth required)
-export const listProducts = ({ page, limit } = {}) =>
-  apiClient.get('/products', { params: { page, limit } }).then((res) => res.data)
+// GET /products?page&limit&name&category&minPriceCents&maxPriceCents -> PaginatedProductsResponseDto (public, no auth required)
+export const listProducts = ({ page, limit, name, category, minPriceCents, maxPriceCents } = {}) =>
+  apiClient
+    .get('/products', { params: { page, limit, name, category, minPriceCents, maxPriceCents } })
+    .then((res) => res.data)
 
 // POST /products -> ProductResponseDto (requires bearer auth, ADMIN role)
 export const createProduct = (product) =>
