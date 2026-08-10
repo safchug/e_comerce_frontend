@@ -340,3 +340,32 @@ body {
   color: #666;
   font-size: 0.85rem;
 }
+
+.cart-badge {
+  display: inline-block;
+  min-width: 1.1rem;
+  margin-left: 0.3rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: #4a4de7;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.quantity-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #f0f0f3;
+  font-weight: 600;
+}

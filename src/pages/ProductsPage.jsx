@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { listCategories, listProducts } from '../api/products'
-import { extractErrorMessage } from '../context/AuthContext'
+import { extractErrorMessage, useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 import { formatPrice } from '../utils/formatPrice'
 
 const LIMIT = 20
@@ -14,6 +16,8 @@ const toCents = (dollars) => {
 }
 
 export default function ProductsPage() {
+  const { isAuthenticated } = useAuth()
+  const { addItem } = useCart()
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [appliedFilters, setAppliedFilters] = useState(EMPTY_FILTERS)
@@ -21,6 +25,9 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [categories, setCategories] = useState([])
+  const [addingId, setAddingId] = useState(null)
+  const [addError, setAddError] = useState({})
+  const [addedId, setAddedId] = useState(null)
 
   useEffect(() => {
     listCategories()
@@ -72,6 +79,20 @@ export default function ProductsPage() {
   }
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== '')
+
+  const handleAddToCart = async (productId) => {
+    setAddingId(productId)
+    setAddError((prev) => ({ ...prev, [productId]: null }))
+    setAddedId(null)
+    try {
+      await addItem(productId, 1)
+      setAddedId(productId)
+    } catch (err) {
+      setAddError((prev) => ({ ...prev, [productId]: extractErrorMessage(err) }))
+    } finally {
+      setAddingId(null)
+    }
+  }
 
   const products = result?.data ?? []
   const meta = result?.meta
@@ -150,6 +171,7 @@ export default function ProductsPage() {
                 <th>Name</th>
                 <th>Description</th>
                 <th>Price</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -159,6 +181,29 @@ export default function ProductsPage() {
                   <td>{product.name}</td>
                   <td>{product.description || '—'}</td>
                   <td>{formatPrice(product.priceCents, product.currency)}</td>
+                  <td>
+                    {isAuthenticated ? (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-small"
+                          disabled={addingId === product.id}
+                          onClick={() => handleAddToCart(product.id)}
+                        >
+                          {addingId === product.id
+                            ? 'Adding…'
+                            : addedId === product.id
+                              ? 'Added ✓'
+                              : 'Add to cart'}
+                        </button>
+                        {addError[product.id] && (
+                          <div className="alert alert-error alert-inline">{addError[product.id]}</div>
+                        )}
+                      </>
+                    ) : (
+                      <Link to="/login">Log in to buy</Link>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
