@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { listProducts } from '../api/products'
+import { listCategories, listProducts } from '../api/products'
 import { extractErrorMessage } from '../context/AuthContext'
 import { formatPrice } from '../utils/formatPrice'
 
@@ -20,6 +20,13 @@ export default function ProductsPage() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [categories, setCategories] = useState([])
+
+  useEffect(() => {
+    listCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]))
+  }, [])
 
   // Debounce filter changes so we don't fire a request on every keystroke.
   useEffect(() => {
@@ -87,13 +94,14 @@ export default function ProductsPage() {
           </div>
           <div className="form-field">
             <label htmlFor="filter-category">Category</label>
-            <input
-              id="filter-category"
-              type="text"
-              placeholder="e.g. Electronics"
-              value={filters.category}
-              onChange={handleFilterChange('category')}
-            />
+            <select id="filter-category" value={filters.category} onChange={handleFilterChange('category')}>
+              <option value="">All categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-field">
             <label htmlFor="filter-min-price">Min price</label>
