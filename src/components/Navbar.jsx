@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 
 export default function Navbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth()
+  const { itemCount } = useCart()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -20,6 +22,10 @@ export default function Navbar() {
         <Link to="/health">Status</Link>
         {isAuthenticated ? (
           <>
+            <Link to="/cart">
+              Cart
+              {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
+            </Link>
             <Link to="/profile">Profile</Link>
             {isAdmin && <Link to="/admin/users">Users</Link>}
             {isAdmin && <Link to="/admin/products">Products</Link>}
