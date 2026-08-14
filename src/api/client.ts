@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
 import type { TokenPair } from '../types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
@@ -39,11 +39,16 @@ let refreshPromise: Promise<{ data: TokenPair }> | null = null
 // 401s share the same in-flight refresh call instead of each starting their own.
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+  async (error: unknown) => {
+    if (!axios.isAxiosError(error)) {
+      return Promise.reject(error)
+    }
+
+    const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
 
     if (
       error.response?.status !== 401 ||
+      !originalRequest ||
       originalRequest._retry ||
       originalRequest.url?.includes('/auth/refresh') ||
       originalRequest.url?.includes('/auth/login')
@@ -61,7 +66,7 @@ apiClient.interceptors.response.use(
     try {
       if (!refreshPromise) {
         refreshPromise = axios
-          .post(`${BASE_URL}/auth/refresh`, { refreshToken })
+          .post<TokenPair>(`${BASE_URL}/auth/refresh`, { refreshToken })
           .finally(() => {
             refreshPromise = null
           })

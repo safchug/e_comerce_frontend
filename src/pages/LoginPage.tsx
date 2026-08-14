@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ChangeEvent, FormEvent } from 'react'
+import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -39,7 +39,7 @@ export default function LoginPage() {
           id="email"
           type="email"
           value={email}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
         />
@@ -49,7 +49,7 @@ export default function LoginPage() {
           id="password"
           type="password"
           value={password}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="current-password"
         />
@@ -59,7 +59,7 @@ export default function LoginPage() {
         </button>
 
         <p className="auth-switch">
-          Don't have an account? <Link to="/register">Register</Link>
+          Don&apos;t have an account? <Link to="/register">Register</Link>
         </p>
       </form>
     </div>

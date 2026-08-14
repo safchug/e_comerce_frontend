@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import axios from 'axios'
 import * as authApi from '../api/auth'
 import { tokenStorage } from '../api/client'
 import type { ApiErrorResponse, User } from '../types'
@@ -113,9 +114,11 @@ export function useAuth() {
 }
 
 export function extractErrorMessage(err: unknown) {
-  const response = (err as { response?: { data?: ApiErrorResponse } } | undefined)?.response
-  const message = response?.data?.message
-  if (Array.isArray(message)) return message.join(', ')
-  if (typeof message === 'string') return message
-  return (err as { message?: string } | undefined)?.message || 'Something went wrong. Please try again.'
+  if (axios.isAxiosError<ApiErrorResponse>(err)) {
+    const message = err.response?.data?.message
+    if (Array.isArray(message)) return message.join(', ')
+    if (typeof message === 'string') return message
+  }
+  if (err instanceof Error) return err.message
+  return 'Something went wrong. Please try again.'
 }

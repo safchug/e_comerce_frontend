@@ -21,4 +21,4 @@ export const logout = (refreshToken: string) =>
 export const getMe = () => apiClient.get<User>('/users/me').then((res) => res.data)
 
 // GET /users -> admin-only placeholder endpoint (requires bearer auth)
-export const getUsers = () => apiClient.get('/users').then((res) => res.data)
+export const getUsers = () => apiClient.get<User[]>('/users').then((res) => res.data)

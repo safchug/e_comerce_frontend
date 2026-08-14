@@ -8,7 +8,7 @@ export const listProducts = ({ page, limit, name, category, minPriceCents, maxPr
     .then((res) => res.data)
 
 // POST /products -> ProductResponseDto (requires bearer auth, ADMIN role)
-export const createProduct = (product: Partial<ProductInput>) =>
+export const createProduct = (product: ProductInput) =>
   apiClient.post<Product>('/products', product).then((res) => res.data)
 
 // PATCH /products/:id -> ProductResponseDto (requires bearer auth, ADMIN role)

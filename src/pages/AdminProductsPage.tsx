@@ -171,7 +171,7 @@ export default function AdminProductsPage() {
         <h2 className="card-title">Products created this session</h2>
         <p className="field-hint">
           The API only exposes create, update, and delete for products, so this list only shows products
-          created or edited here — it isn't a full catalog.
+          created or edited here — it isn&apos;t a full catalog.
         </p>
 
         {products.length === 0 ? (
