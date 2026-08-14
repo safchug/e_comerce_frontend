@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { getHealth } from '../api/health'
+import type { HealthStatus } from '../types'
 
 export default function HealthPage() {
-  const [health, setHealth] = useState(null)
-  const [error, setError] = useState(null)
+  const [health, setHealth] = useState<HealthStatus | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   const check = () => {

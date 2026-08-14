@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -10,9 +11,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const from = location.state?.from?.pathname || '/profile'
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/profile'
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     clearError()
     setSubmitting(true)
@@ -58,7 +59,7 @@ export default function LoginPage() {
         </button>
 
         <p className="auth-switch">
-          Don't have an account? <Link to="/register">Register</Link>
+          Don&apos;t have an account? <Link to="/register">Register</Link>
         </p>
       </form>
     </div>

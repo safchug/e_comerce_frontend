@@ -4,26 +4,27 @@ import { listProducts } from '../api/products'
 import { useCart } from '../context/CartContext'
 import { extractErrorMessage } from '../context/AuthContext'
 import { formatPrice } from '../utils/formatPrice'
+import type { Product } from '../types'
 
 export default function CartPage() {
   const { items, loading, error, setItemQuantity, removeItem } = useCart()
-  const [productMap, setProductMap] = useState({})
-  const [rowBusy, setRowBusy] = useState({})
-  const [rowError, setRowError] = useState({})
+  const [productMap, setProductMap] = useState<Record<string, Product>>({})
+  const [rowBusy, setRowBusy] = useState<Record<string, boolean>>({})
+  const [rowError, setRowError] = useState<Record<string, string | null>>({})
 
   // Cart lines only carry productId + quantity, and there's no GET /products/:id,
   // so fetch a page of the catalog to look up names/prices for display.
   useEffect(() => {
     listProducts({ limit: 100 })
       .then((res) => {
-        const map = {}
+        const map: Record<string, Product> = {}
         for (const product of res.data) map[product.id] = product
         setProductMap(map)
       })
       .catch(() => {})
   }, [])
 
-  const runRowAction = async (productId, action) => {
+  const runRowAction = async (productId: string, action: () => Promise<unknown>) => {
     setRowBusy((prev) => ({ ...prev, [productId]: true }))
     setRowError((prev) => ({ ...prev, [productId]: null }))
     try {
@@ -35,12 +36,12 @@ export default function CartPage() {
     }
   }
 
-  const handleQuantityChange = (productId, quantity) => {
+  const handleQuantityChange = (productId: string, quantity: number) => {
     if (!Number.isFinite(quantity) || quantity < 1) return
     runRowAction(productId, () => setItemQuantity(productId, quantity))
   }
 
-  const handleRemove = (productId) => {
+  const handleRemove = (productId: string) => {
     runRowAction(productId, () => removeItem(productId))
   }
 

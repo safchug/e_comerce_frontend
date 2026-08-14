@@ -1,13 +1,29 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import axios from 'axios'
 import * as authApi from '../api/auth'
 import { tokenStorage } from '../api/client'
+import type { ApiErrorResponse, User } from '../types'
 
-const AuthContext = createContext(null)
+interface AuthContextValue {
+  user: User | null
+  loading: boolean
+  error: string | null
+  clearError: () => void
+  isAuthenticated: boolean
+  isAdmin: boolean
+  login: (email: string, password: string) => Promise<User>
+  register: (email: string, password: string) => Promise<User>
+  logout: () => Promise<void>
+  refreshUser: () => Promise<void>
+}
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+const AuthContext = createContext<AuthContextValue | null>(null)
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const loadCurrentUser = useCallback(async () => {
     if (!tokenStorage.getAccessToken()) {
@@ -36,7 +52,7 @@ export function AuthProvider({ children }) {
 
   const clearError = () => setError(null)
 
-  const handleLogin = async (email, password) => {
+  const handleLogin = async (email: string, password: string) => {
     setError(null)
     try {
       const data = await authApi.login(email, password)
@@ -49,7 +65,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const handleRegister = async (email, password) => {
+  const handleRegister = async (email: string, password: string) => {
     setError(null)
     try {
       return await authApi.register(email, password)
@@ -73,7 +89,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const value = {
+  const value: AuthContextValue = {
     user,
     loading,
     error,
@@ -97,9 +113,12 @@ export function useAuth() {
   return ctx
 }
 
-export function extractErrorMessage(err) {
-  const message = err?.response?.data?.message
-  if (Array.isArray(message)) return message.join(', ')
-  if (typeof message === 'string') return message
-  return err?.message || 'Something went wrong. Please try again.'
+export function extractErrorMessage(err: unknown) {
+  if (axios.isAxiosError<ApiErrorResponse>(err)) {
+    const message = err.response?.data?.message
+    if (Array.isArray(message)) return message.join(', ')
+    if (typeof message === 'string') return message
+  }
+  if (err instanceof Error) return err.message
+  return 'Something went wrong. Please try again.'
 }

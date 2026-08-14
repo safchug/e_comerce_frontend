@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { getUsers } from '../api/auth'
 import { extractErrorMessage } from '../context/AuthContext'
+import type { User } from '../types'
 
 export default function AdminUsersPage() {
-  const [data, setData] = useState(null)
-  const [error, setError] = useState(null)
+  const [data, setData] = useState<User[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

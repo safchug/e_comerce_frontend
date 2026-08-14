@@ -1,7 +1,14 @@
 import { Navigate, useLocation } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import { useAuth } from '../context/AuthContext'
 
-export default function ProtectedRoute({ children, adminOnly = false }) {
+export default function ProtectedRoute({
+  children,
+  adminOnly = false,
+}: {
+  children: ReactNode
+  adminOnly?: boolean
+}) {
   const { isAuthenticated, isAdmin, loading } = useAuth()
   const location = useLocation()
 
