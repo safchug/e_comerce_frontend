@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -10,9 +11,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const from = location.state?.from?.pathname || '/profile'
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname || '/profile'
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     clearError()
     setSubmitting(true)
@@ -38,7 +39,7 @@ export default function LoginPage() {
           id="email"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           required
           autoComplete="email"
         />
@@ -48,7 +49,7 @@ export default function LoginPage() {
           id="password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           required
           autoComplete="current-password"
         />

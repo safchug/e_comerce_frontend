@@ -1,4 +1,4 @@
-export function formatPrice(cents, currency) {
+export function formatPrice(cents: number | null | undefined, currency?: string) {
   try {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD' }).format(
       (cents || 0) / 100,

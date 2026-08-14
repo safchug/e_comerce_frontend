@@ -1,4 +1,6 @@
 import axios from 'axios'
+import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import type { TokenPair } from '../types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
@@ -8,7 +10,7 @@ const REFRESH_TOKEN_KEY = 'refreshToken'
 export const tokenStorage = {
   getAccessToken: () => localStorage.getItem(ACCESS_TOKEN_KEY),
   getRefreshToken: () => localStorage.getItem(REFRESH_TOKEN_KEY),
-  setTokens: (accessToken, refreshToken) => {
+  setTokens: (accessToken: string, refreshToken: string) => {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
   },
@@ -31,14 +33,14 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
-let refreshPromise = null
+let refreshPromise: Promise<{ data: TokenPair }> | null = null
 
 // On a 401, try exactly one silent refresh before giving up. Concurrent
 // 401s share the same in-flight refresh call instead of each starting their own.
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
     if (
       error.response?.status !== 401 ||

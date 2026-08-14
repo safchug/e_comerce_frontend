@@ -1,36 +1,39 @@
 import { useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import { createProduct, deleteProduct, updateProduct } from '../api/products'
 import { extractErrorMessage } from '../context/AuthContext'
 import { formatPrice } from '../utils/formatPrice'
+import type { Product } from '../types'
 
 const emptyForm = { sku: '', name: '', description: '', price: '', currency: 'USD', active: true }
+type ProductForm = typeof emptyForm
 
-function toCents(priceStr) {
+function toCents(priceStr: string) {
   const value = Math.round(parseFloat(priceStr) * 100)
   return Number.isFinite(value) ? value : 0
 }
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState<Product[]>([])
 
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState<ProductForm>(emptyForm)
   const [creating, setCreating] = useState(false)
-  const [createError, setCreateError] = useState(null)
+  const [createError, setCreateError] = useState<string | null>(null)
 
-  const [editingId, setEditingId] = useState(null)
-  const [editForm, setEditForm] = useState(emptyForm)
-  const [savingId, setSavingId] = useState(null)
-  const [editError, setEditError] = useState(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<ProductForm>(emptyForm)
+  const [savingId, setSavingId] = useState<string | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
 
-  const [deletingId, setDeletingId] = useState(null)
-  const [rowError, setRowError] = useState({})
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [rowError, setRowError] = useState<Record<string, string | null>>({})
 
-  const handleCreateChange = (field) => (e) => {
+  const handleCreateChange = (field: keyof ProductForm) => (e: ChangeEvent<HTMLInputElement>) => {
     const value = field === 'active' ? e.target.checked : e.target.value
     setForm((f) => ({ ...f, [field]: value }))
   }
 
-  const handleCreateSubmit = async (e) => {
+  const handleCreateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setCreateError(null)
     setCreating(true)
@@ -41,8 +44,8 @@ export default function AdminProductsPage() {
         priceCents: toCents(form.price),
         currency: form.currency.trim() || 'USD',
         active: form.active,
+        description: form.description.trim() || undefined,
       }
-      if (form.description.trim()) payload.description = form.description.trim()
       const created = await createProduct(payload)
       setProducts((prev) => [created, ...prev])
       setForm(emptyForm)
@@ -53,7 +56,7 @@ export default function AdminProductsPage() {
     }
   }
 
-  const startEdit = (product) => {
+  const startEdit = (product: Product) => {
     setEditingId(product.id)
     setEditError(null)
     setEditForm({
@@ -72,12 +75,12 @@ export default function AdminProductsPage() {
     setEditError(null)
   }
 
-  const handleEditChange = (field) => (e) => {
+  const handleEditChange = (field: keyof ProductForm) => (e: ChangeEvent<HTMLInputElement>) => {
     const value = field === 'active' ? e.target.checked : e.target.value
     setEditForm((f) => ({ ...f, [field]: value }))
   }
 
-  const handleEditSubmit = async (e, id) => {
+  const handleEditSubmit = async (e: FormEvent<HTMLFormElement>, id: string) => {
     e.preventDefault()
     setEditError(null)
     setSavingId(id)
@@ -99,7 +102,7 @@ export default function AdminProductsPage() {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this product? This cannot be undone.')) return
     setDeletingId(id)
     setRowError((prev) => ({ ...prev, [id]: null }))

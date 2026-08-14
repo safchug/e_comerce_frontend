@@ -1,15 +1,30 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import * as cartApi from '../api/cart'
 import { extractErrorMessage } from './AuthContext'
 import { useAuth } from './AuthContext'
+import type { Cart, CartItem } from '../types'
 
-const CartContext = createContext(null)
+interface CartContextValue {
+  cart: Cart | null
+  items: CartItem[]
+  itemCount: number
+  loading: boolean
+  error: string | null
+  clearError: () => void
+  refresh: () => Promise<void>
+  addItem: (productId: string, quantity: number) => Promise<Cart>
+  setItemQuantity: (productId: string, quantity: number) => Promise<Cart>
+  removeItem: (productId: string) => Promise<void>
+}
 
-export function CartProvider({ children }) {
+const CartContext = createContext<CartContextValue | null>(null)
+
+export function CartProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth()
-  const [cart, setCart] = useState(null)
+  const [cart, setCart] = useState<Cart | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   const loadCart = useCallback(async () => {
     if (!isAuthenticated) {
@@ -32,7 +47,7 @@ export function CartProvider({ children }) {
     loadCart()
   }, [loadCart])
 
-  const addItem = async (productId, quantity) => {
+  const addItem = async (productId: string, quantity: number) => {
     setError(null)
     try {
       const data = await cartApi.addItem(productId, quantity)
@@ -44,7 +59,7 @@ export function CartProvider({ children }) {
     }
   }
 
-  const setItemQuantity = async (productId, quantity) => {
+  const setItemQuantity = async (productId: string, quantity: number) => {
     setError(null)
     try {
       const data = await cartApi.setItemQuantity(productId, quantity)
@@ -56,7 +71,7 @@ export function CartProvider({ children }) {
     }
   }
 
-  const removeItem = async (productId) => {
+  const removeItem = async (productId: string) => {
     setError(null)
     try {
       await cartApi.removeItem(productId)
@@ -70,7 +85,7 @@ export function CartProvider({ children }) {
   const items = cart?.items ?? []
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
-  const value = {
+  const value: CartContextValue = {
     cart,
     items,
     itemCount,

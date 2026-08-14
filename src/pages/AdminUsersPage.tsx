@@ -3,8 +3,8 @@ import { getUsers } from '../api/auth'
 import { extractErrorMessage } from '../context/AuthContext'
 
 export default function AdminUsersPage() {
-  const [data, setData] = useState(null)
-  const [error, setError] = useState(null)
+  const [data, setData] = useState<unknown>(null)
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

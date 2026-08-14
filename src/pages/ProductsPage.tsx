@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { listCategories, listProducts } from '../api/products'
 import { extractErrorMessage, useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { formatPrice } from '../utils/formatPrice'
+import type { PaginatedProductsResponse } from '../types'
 
 const LIMIT = 20
 const EMPTY_FILTERS = { name: '', category: '', minPrice: '', maxPrice: '' }
 
 // Converts a whole-dollar string from the price inputs into whole cents for the API.
-const toCents = (dollars) => {
+const toCents = (dollars: string | undefined) => {
   if (dollars === '' || dollars === undefined) return undefined
   const value = Number(dollars)
   return Number.isFinite(value) ? Math.round(value * 100) : undefined
@@ -21,13 +23,13 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [appliedFilters, setAppliedFilters] = useState(EMPTY_FILTERS)
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState<PaginatedProductsResponse | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [categories, setCategories] = useState([])
-  const [addingId, setAddingId] = useState(null)
-  const [addError, setAddError] = useState({})
-  const [addedId, setAddedId] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [categories, setCategories] = useState<string[]>([])
+  const [addingId, setAddingId] = useState<string | null>(null)
+  const [addError, setAddError] = useState<Record<string, string | null>>({})
+  const [addedId, setAddedId] = useState<string | null>(null)
 
   useEffect(() => {
     listCategories()
@@ -70,7 +72,7 @@ export default function ProductsPage() {
     }
   }, [page, appliedFilters])
 
-  const handleFilterChange = (field) => (e) => {
+  const handleFilterChange = (field: keyof typeof EMPTY_FILTERS) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFilters((f) => ({ ...f, [field]: e.target.value }))
   }
 
@@ -80,7 +82,7 @@ export default function ProductsPage() {
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== '')
 
-  const handleAddToCart = async (productId) => {
+  const handleAddToCart = async (productId: string) => {
     setAddingId(productId)
     setAddError((prev) => ({ ...prev, [productId]: null }))
     setAddedId(null)
