@@ -75,7 +75,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setError(null)
     try {
       await cartApi.removeItem(productId)
-      setCart((prev) => (prev ? { ...prev, items: prev.items.filter((i) => i.productId !== productId) } : prev))
+      // DELETE returns 204 with no body, so re-fetch to get authoritative
+      // totals (subtotal/tax/total) rather than patching items locally.
+      const data = await cartApi.getCart()
+      setCart(data)
     } catch (err) {
       setError(extractErrorMessage(err))
       throw err
