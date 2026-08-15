@@ -1,33 +1,27 @@
-import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { listProducts } from '../api/products'
+import { useProductMap } from '../hooks/useProductMap'
 import { formatPrice } from '../utils/formatPrice'
-import type { Order, Product } from '../types'
+import type { Order } from '../types'
+
+function formatOrderDate(createdAt: string) {
+  const date = new Date(createdAt)
+  return Number.isNaN(date.getTime()) ? createdAt : date.toLocaleString()
+}
 
 export default function OrderConfirmationPage() {
   const { id } = useParams()
   const location = useLocation()
   const order = (location.state as { order?: Order } | null)?.order
-  const [productMap, setProductMap] = useState<Record<string, Product>>({})
+  const productMap = useProductMap()
 
-  // The order response only carries productId per line, so fetch a page of
-  // the catalog just to look up names (same approach as CartPage).
-  useEffect(() => {
-    listProducts({ limit: 100 })
-      .then((res) => {
-        const map: Record<string, Product> = {}
-        for (const product of res.data) map[product.id] = product
-        setProductMap(map)
-      })
-      .catch(() => {})
-  }, [])
-
+  // The order is only available via router state from the checkout redirect
+  // (no GET /orders/:id yet), so a direct visit or refresh can't recover it.
   if (!order || order.id !== id) {
     return (
       <div className="page">
-        <h1>Order placed</h1>
+        <h1>Order details unavailable</h1>
         <p className="page-status">
-          Order details aren't available here.
+          This order can only be viewed right after checkout.
           <br />
           <Link to="/cart">Back to cart</Link>
         </p>
@@ -39,7 +33,7 @@ export default function OrderConfirmationPage() {
     <div className="page">
       <h1>Order confirmed</h1>
       <p className="order-meta">
-        Order #{order.id} · placed {new Date(order.createdAt).toLocaleString()}
+        Order #{order.id} · placed {formatOrderDate(order.createdAt)}
       </p>
 
       <div className="card">

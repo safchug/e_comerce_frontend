@@ -1,32 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { listProducts } from '../api/products'
 import { useCart } from '../context/CartContext'
 import { extractErrorMessage } from '../context/AuthContext'
+import { useProductMap } from '../hooks/useProductMap'
 import { formatPrice } from '../utils/formatPrice'
-import type { Product } from '../types'
 
 export default function CartPage() {
   const { cart, items, loading, error, setItemQuantity, removeItem, placeOrder } = useCart()
   const navigate = useNavigate()
-  const [productMap, setProductMap] = useState<Record<string, Product>>({})
+  const productMap = useProductMap()
   const [rowBusy, setRowBusy] = useState<Record<string, boolean>>({})
   const [rowError, setRowError] = useState<Record<string, string | null>>({})
   const [placingOrder, setPlacingOrder] = useState(false)
-  const [orderError, setOrderError] = useState<string | null>(null)
-
-  // The cart already carries authoritative pricing/totals (unitPriceCents, lineTotalCents,
-  // subtotalCents, taxCents, totalCents, ...). Product names aren't part of the cart response
-  // and there's no GET /products/:id, so fetch a page of the catalog just to look up names.
-  useEffect(() => {
-    listProducts({ limit: 100 })
-      .then((res) => {
-        const map: Record<string, Product> = {}
-        for (const product of res.data) map[product.id] = product
-        setProductMap(map)
-      })
-      .catch(() => {})
-  }, [])
 
   const runRowAction = async (productId: string, action: () => Promise<unknown>) => {
     setRowBusy((prev) => ({ ...prev, [productId]: true }))
@@ -51,13 +36,10 @@ export default function CartPage() {
 
   const handlePlaceOrder = async () => {
     setPlacingOrder(true)
-    setOrderError(null)
     try {
       const order = await placeOrder()
       navigate(`/orders/${order.id}`, { state: { order } })
-    } catch (err) {
-      setOrderError(extractErrorMessage(err))
-    } finally {
+    } catch {
       setPlacingOrder(false)
     }
   }
@@ -154,7 +136,6 @@ export default function CartPage() {
                 <span>Total</span>
                 <span>{formatPrice(cart.totalCents, cart.currency)}</span>
               </div>
-              {orderError && <div className="alert alert-error alert-inline">{orderError}</div>}
               <div className="cart-checkout">
                 <button type="button" className="btn btn-primary" disabled={placingOrder} onClick={handlePlaceOrder}>
                   {placingOrder ? 'Placing order…' : 'Place order'}

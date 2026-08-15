@@ -92,8 +92,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const order = await ordersApi.placeOrder()
       // The order is fulfilled from the cart server-side, so re-fetch to
-      // reflect the now-empty (or updated) cart.
-      await loadCart()
+      // reflect the now-empty (or updated) cart. Not awaited: the caller
+      // navigates away immediately and loadCart handles its own errors.
+      loadCart()
       return order
     } catch (err) {
       setError(extractErrorMessage(err))
