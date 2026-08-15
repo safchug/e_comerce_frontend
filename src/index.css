@@ -383,3 +383,15 @@ body {
   margin-top: 0.35rem;
   font-weight: 600;
 }
+
+.cart-checkout {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.order-meta {
+  color: #666;
+  font-size: 0.9rem;
+  margin: -0.75rem 0 1.25rem;
+}

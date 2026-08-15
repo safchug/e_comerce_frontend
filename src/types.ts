@@ -76,6 +76,27 @@ export interface Cart {
   updatedAt: string
 }
 
+export interface OrderItem {
+  productId: string
+  quantity: number
+  unitPriceCents: number
+  lineTotalCents: number
+}
+
+export interface Order {
+  id: string
+  userId: string
+  items: OrderItem[]
+  currency: string
+  subtotalCents: number
+  discountCents: number
+  taxRate: number
+  taxCents: number
+  totalCents: number
+  createdAt: string
+  updatedAt: string
+}
+
 export interface HealthStatus {
   status: string
   uptime: number
