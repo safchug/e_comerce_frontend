@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import * as cartApi from '../api/cart'
+import * as ordersApi from '../api/orders'
 import { extractErrorMessage } from './AuthContext'
 import { useAuth } from './AuthContext'
-import type { Cart, CartItem } from '../types'
+import type { Cart, CartItem, Order } from '../types'
 
 interface CartContextValue {
   cart: Cart | null
@@ -16,6 +17,7 @@ interface CartContextValue {
   addItem: (productId: string, quantity: number) => Promise<Cart>
   setItemQuantity: (productId: string, quantity: number) => Promise<Cart>
   removeItem: (productId: string) => Promise<void>
+  placeOrder: () => Promise<Order>
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
@@ -85,6 +87,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const placeOrder = async () => {
+    setError(null)
+    try {
+      const order = await ordersApi.placeOrder()
+      // The order is fulfilled from the cart server-side, so re-fetch to
+      // reflect the now-empty (or updated) cart.
+      await loadCart()
+      return order
+    } catch (err) {
+      setError(extractErrorMessage(err))
+      throw err
+    }
+  }
+
   const items = cart?.items ?? []
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -99,6 +115,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     addItem,
     setItemQuantity,
     removeItem,
+    placeOrder,
   }
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

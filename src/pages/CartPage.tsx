@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { listProducts } from '../api/products'
 import { useCart } from '../context/CartContext'
 import { extractErrorMessage } from '../context/AuthContext'
@@ -7,10 +7,13 @@ import { formatPrice } from '../utils/formatPrice'
 import type { Product } from '../types'
 
 export default function CartPage() {
-  const { cart, items, loading, error, setItemQuantity, removeItem } = useCart()
+  const { cart, items, loading, error, setItemQuantity, removeItem, placeOrder } = useCart()
+  const navigate = useNavigate()
   const [productMap, setProductMap] = useState<Record<string, Product>>({})
   const [rowBusy, setRowBusy] = useState<Record<string, boolean>>({})
   const [rowError, setRowError] = useState<Record<string, string | null>>({})
+  const [placingOrder, setPlacingOrder] = useState(false)
+  const [orderError, setOrderError] = useState<string | null>(null)
 
   // The cart already carries authoritative pricing/totals (unitPriceCents, lineTotalCents,
   // subtotalCents, taxCents, totalCents, ...). Product names aren't part of the cart response
@@ -44,6 +47,19 @@ export default function CartPage() {
 
   const handleRemove = (productId: string) => {
     runRowAction(productId, () => removeItem(productId))
+  }
+
+  const handlePlaceOrder = async () => {
+    setPlacingOrder(true)
+    setOrderError(null)
+    try {
+      const order = await placeOrder()
+      navigate(`/orders/${order.id}`, { state: { order } })
+    } catch (err) {
+      setOrderError(extractErrorMessage(err))
+    } finally {
+      setPlacingOrder(false)
+    }
   }
 
   return (
@@ -137,6 +153,12 @@ export default function CartPage() {
               <div className="cart-total">
                 <span>Total</span>
                 <span>{formatPrice(cart.totalCents, cart.currency)}</span>
+              </div>
+              {orderError && <div className="alert alert-error alert-inline">{orderError}</div>}
+              <div className="cart-checkout">
+                <button type="button" className="btn btn-primary" disabled={placingOrder} onClick={handlePlaceOrder}>
+                  {placingOrder ? 'Placing order…' : 'Place order'}
+                </button>
               </div>
             </div>
           )}

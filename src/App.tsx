@@ -8,6 +8,7 @@ import AdminUsersPage from './pages/AdminUsersPage'
 import AdminProductsPage from './pages/AdminProductsPage'
 import ProductsPage from './pages/ProductsPage'
 import CartPage from './pages/CartPage'
+import OrderConfirmationPage from './pages/OrderConfirmationPage'
 import HealthPage from './pages/HealthPage'
 import NotFoundPage from './pages/NotFoundPage'
 
@@ -27,6 +28,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <CartPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:id"
+            element={
+              <ProtectedRoute>
+                <OrderConfirmationPage />
               </ProtectedRoute>
             }
           />
