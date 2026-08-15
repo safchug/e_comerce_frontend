@@ -14,4 +14,4 @@ export const setItemQuantity = (productId: string, quantity: number) =>
 
 // DELETE /cart/items/:productId -> 204 No Content (requires bearer auth)
 export const removeItem = (productId: string) =>
-  apiClient.delete(`/cart/items/${productId}`).then((res) => res.data)
+  apiClient.delete(`/cart/items/${productId}`).then(() => undefined)

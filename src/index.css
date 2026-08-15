@@ -360,12 +360,26 @@ body {
   gap: 0.5rem;
 }
 
+.cart-summary {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f3;
+}
+
+.cart-summary-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 0.15rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
 .cart-total {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  padding-top: 1rem;
-  margin-top: 0.5rem;
-  border-top: 1px solid #f0f0f3;
+  padding-top: 0.5rem;
+  margin-top: 0.35rem;
   font-weight: 600;
 }

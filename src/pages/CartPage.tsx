@@ -7,13 +7,14 @@ import { formatPrice } from '../utils/formatPrice'
 import type { Product } from '../types'
 
 export default function CartPage() {
-  const { items, loading, error, setItemQuantity, removeItem } = useCart()
+  const { cart, items, loading, error, setItemQuantity, removeItem } = useCart()
   const [productMap, setProductMap] = useState<Record<string, Product>>({})
   const [rowBusy, setRowBusy] = useState<Record<string, boolean>>({})
   const [rowError, setRowError] = useState<Record<string, string | null>>({})
 
-  // Cart lines only carry productId + quantity, and there's no GET /products/:id,
-  // so fetch a page of the catalog to look up names/prices for display.
+  // The cart already carries authoritative pricing/totals (unitPriceCents, lineTotalCents,
+  // subtotalCents, taxCents, totalCents, ...). Product names aren't part of the cart response
+  // and there's no GET /products/:id, so fetch a page of the catalog just to look up names.
   useEffect(() => {
     listProducts({ limit: 100 })
       .then((res) => {
@@ -44,12 +45,6 @@ export default function CartPage() {
   const handleRemove = (productId: string) => {
     runRowAction(productId, () => removeItem(productId))
   }
-
-  const currency = items.map((item) => productMap[item.productId]?.currency).find(Boolean) || 'USD'
-  const totalCents = items.reduce((sum, item) => {
-    const product = productMap[item.productId]
-    return sum + (product ? product.priceCents * item.quantity : 0)
-  }, 0)
 
   return (
     <div className="page">
@@ -82,7 +77,7 @@ export default function CartPage() {
                 return (
                   <tr key={item.productId}>
                     <td>{product ? product.name : item.productId}</td>
-                    <td>{product ? formatPrice(product.priceCents, product.currency) : '—'}</td>
+                    <td>{formatPrice(item.unitPriceCents, cart?.currency)}</td>
                     <td>
                       <div className="quantity-stepper">
                         <button
@@ -107,7 +102,7 @@ export default function CartPage() {
                         <div className="alert alert-error alert-inline">{rowError[item.productId]}</div>
                       )}
                     </td>
-                    <td>{product ? formatPrice(product.priceCents * item.quantity, product.currency) : '—'}</td>
+                    <td>{formatPrice(item.lineTotalCents, cart?.currency)}</td>
                     <td>
                       <button
                         type="button"
@@ -123,10 +118,28 @@ export default function CartPage() {
               })}
             </tbody>
           </table>
-          <div className="cart-total">
-            <span>Total</span>
-            <span>{formatPrice(totalCents, currency)}</span>
-          </div>
+          {cart && (
+            <div className="cart-summary">
+              <div className="cart-summary-row">
+                <span>Subtotal</span>
+                <span>{formatPrice(cart.subtotalCents, cart.currency)}</span>
+              </div>
+              {cart.discountCents > 0 && (
+                <div className="cart-summary-row">
+                  <span>Discount</span>
+                  <span>-{formatPrice(cart.discountCents, cart.currency)}</span>
+                </div>
+              )}
+              <div className="cart-summary-row">
+                <span>Tax{cart.taxRate > 0 ? ` (${(cart.taxRate * 100).toFixed(2)}%)` : ''}</span>
+                <span>{formatPrice(cart.taxCents, cart.currency)}</span>
+              </div>
+              <div className="cart-total">
+                <span>Total</span>
+                <span>{formatPrice(cart.totalCents, cart.currency)}</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
