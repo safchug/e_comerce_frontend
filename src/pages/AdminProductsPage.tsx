@@ -5,7 +5,16 @@ import { extractErrorMessage } from '../context/AuthContext'
 import { formatPrice } from '../utils/formatPrice'
 import type { Product } from '../types'
 
-const emptyForm = { sku: '', name: '', description: '', price: '', currency: 'USD', active: true }
+const emptyForm = {
+  sku: '',
+  name: '',
+  category: '',
+  description: '',
+  price: '',
+  currency: 'USD',
+  active: true,
+  stockQuantity: '0',
+}
 type ProductForm = typeof emptyForm
 
 function toCents(priceStr: string) {
@@ -41,9 +50,11 @@ export default function AdminProductsPage() {
       const payload = {
         sku: form.sku.trim(),
         name: form.name.trim(),
+        category: form.category.trim(),
         priceCents: toCents(form.price),
         currency: form.currency.trim() || 'USD',
         active: form.active,
+        stockQuantity: Number(form.stockQuantity) || 0,
         description: form.description.trim() || undefined,
       }
       const created = await createProduct(payload)
@@ -62,10 +73,12 @@ export default function AdminProductsPage() {
     setEditForm({
       sku: product.sku,
       name: product.name,
+      category: product.category,
       description: product.description || '',
       price: (product.priceCents / 100).toFixed(2),
       currency: product.currency,
       active: product.active,
+      stockQuantity: String(product.stockQuantity),
     })
   }
 
@@ -87,10 +100,12 @@ export default function AdminProductsPage() {
     try {
       const payload = {
         name: editForm.name.trim(),
+        category: editForm.category.trim(),
         description: editForm.description.trim(),
         priceCents: toCents(editForm.price),
         currency: editForm.currency.trim() || 'USD',
         active: editForm.active,
+        stockQuantity: Number(editForm.stockQuantity) || 0,
       }
       const updated = await updateProduct(id, payload)
       setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)))
@@ -133,6 +148,10 @@ export default function AdminProductsPage() {
               <label htmlFor="name">Name</label>
               <input id="name" value={form.name} onChange={handleCreateChange('name')} required />
             </div>
+            <div className="form-field">
+              <label htmlFor="category">Category</label>
+              <input id="category" value={form.category} onChange={handleCreateChange('category')} required />
+            </div>
             <div className="form-field form-field-wide">
               <label htmlFor="description">Description</label>
               <input id="description" value={form.description} onChange={handleCreateChange('description')} />
@@ -148,6 +167,17 @@ export default function AdminProductsPage() {
                 value={form.price}
                 onChange={handleCreateChange('price')}
                 required
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="stockQuantity">Stock quantity</label>
+              <input
+                id="stockQuantity"
+                type="number"
+                min="0"
+                step="1"
+                value={form.stockQuantity}
+                onChange={handleCreateChange('stockQuantity')}
               />
             </div>
             <div className="form-field">
@@ -182,7 +212,9 @@ export default function AdminProductsPage() {
               <tr>
                 <th>SKU</th>
                 <th>Name</th>
+                <th>Category</th>
                 <th>Price</th>
+                <th>Stock</th>
                 <th>Status</th>
                 <th></th>
               </tr>
@@ -191,7 +223,7 @@ export default function AdminProductsPage() {
               {products.map((product) =>
                 editingId === product.id ? (
                   <tr key={product.id}>
-                    <td colSpan={5}>
+                    <td colSpan={7}>
                       <form className="product-edit-form" onSubmit={(e) => handleEditSubmit(e, product.id)}>
                         {editError && <div className="alert alert-error">{editError}</div>}
                         <div className="form-grid">
@@ -205,6 +237,15 @@ export default function AdminProductsPage() {
                               id={`name-${product.id}`}
                               value={editForm.name}
                               onChange={handleEditChange('name')}
+                              required
+                            />
+                          </div>
+                          <div className="form-field">
+                            <label htmlFor={`category-${product.id}`}>Category</label>
+                            <input
+                              id={`category-${product.id}`}
+                              value={editForm.category}
+                              onChange={handleEditChange('category')}
                               required
                             />
                           </div>
@@ -226,6 +267,17 @@ export default function AdminProductsPage() {
                               value={editForm.price}
                               onChange={handleEditChange('price')}
                               required
+                            />
+                          </div>
+                          <div className="form-field">
+                            <label htmlFor={`stockQuantity-${product.id}`}>Stock quantity</label>
+                            <input
+                              id={`stockQuantity-${product.id}`}
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={editForm.stockQuantity}
+                              onChange={handleEditChange('stockQuantity')}
                             />
                           </div>
                           <div className="form-field">
@@ -263,7 +315,9 @@ export default function AdminProductsPage() {
                   <tr key={product.id}>
                     <td>{product.sku}</td>
                     <td>{product.name}</td>
+                    <td>{product.category}</td>
                     <td>{formatPrice(product.priceCents, product.currency)}</td>
+                    <td>{product.stockQuantity}</td>
                     <td>
                       <span className={`badge ${product.active ? 'badge-ok' : 'badge-inactive'}`}>
                         {product.active ? 'Active' : 'Inactive'}

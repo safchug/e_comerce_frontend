@@ -21,13 +21,17 @@ export interface Product {
   id: string
   sku: string
   name: string
-  description?: string
+  category: string
+  description?: string | null
   priceCents: number
   currency: string
   active: boolean
+  stockQuantity: number
+  createdAt: string
+  updatedAt: string
 }
 
-export type ProductInput = Omit<Product, 'id'>
+export type ProductInput = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>
 
 export interface PaginationMeta {
   page: number
@@ -54,10 +58,22 @@ export interface ProductFilters {
 export interface CartItem {
   productId: string
   quantity: number
+  unitPriceCents: number
+  lineTotalCents: number
 }
 
 export interface Cart {
+  id: string
+  userId: string
   items: CartItem[]
+  currency: string
+  subtotalCents: number
+  discountCents: number
+  taxRate: number
+  taxCents: number
+  totalCents: number
+  createdAt: string
+  updatedAt: string
 }
 
 export interface HealthStatus {

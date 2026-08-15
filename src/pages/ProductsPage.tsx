@@ -171,6 +171,7 @@ export default function ProductsPage() {
               <tr>
                 <th>SKU</th>
                 <th>Name</th>
+                <th>Category</th>
                 <th>Description</th>
                 <th>Price</th>
                 <th></th>
@@ -181,27 +182,32 @@ export default function ProductsPage() {
                 <tr key={product.id}>
                   <td>{product.sku}</td>
                   <td>{product.name}</td>
+                  <td>{product.category}</td>
                   <td>{product.description || '—'}</td>
                   <td>{formatPrice(product.priceCents, product.currency)}</td>
                   <td>
                     {isAuthenticated ? (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-small"
-                          disabled={addingId === product.id}
-                          onClick={() => handleAddToCart(product.id)}
-                        >
-                          {addingId === product.id
-                            ? 'Adding…'
-                            : addedId === product.id
-                              ? 'Added ✓'
-                              : 'Add to cart'}
-                        </button>
-                        {addError[product.id] && (
-                          <div className="alert alert-error alert-inline">{addError[product.id]}</div>
-                        )}
-                      </>
+                      product.stockQuantity <= 0 ? (
+                        <span className="badge badge-inactive">Out of stock</span>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-small"
+                            disabled={addingId === product.id}
+                            onClick={() => handleAddToCart(product.id)}
+                          >
+                            {addingId === product.id
+                              ? 'Adding…'
+                              : addedId === product.id
+                                ? 'Added ✓'
+                                : 'Add to cart'}
+                          </button>
+                          {addError[product.id] && (
+                            <div className="alert alert-error alert-inline">{addError[product.id]}</div>
+                          )}
+                        </>
+                      )
                     ) : (
                       <Link to="/login">Log in to buy</Link>
                     )}
