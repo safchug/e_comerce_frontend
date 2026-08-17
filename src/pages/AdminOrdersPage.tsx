@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { updateOrderStatus } from '../api/orders'
 import { extractErrorMessage } from '../context/AuthContext'
-import { formatPrice } from '../utils/formatPrice'
+import { OrderItemsTable, OrderTotals } from '../components/OrderSummary'
 import { ORDER_STATUSES, orderStatusBadgeClass } from '../utils/orderStatus'
 import type { Order, OrderStatus } from '../types'
 
@@ -15,10 +15,15 @@ export default function AdminOrdersPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const trimmedId = orderId.trim()
+    // The API has no GET /orders/:id, so we can't show the order's current status
+    // before this PATCH lands - require an explicit confirm to reduce the risk of
+    // silently regressing an order's status because of a stale/default selection.
+    if (!window.confirm(`Set order ${trimmedId} to ${status}?`)) return
     setError(null)
     setUpdating(true)
     try {
-      const updated = await updateOrderStatus(orderId.trim(), status)
+      const updated = await updateOrderStatus(trimmedId, status)
       setResult(updated)
     } catch (err) {
       setError(extractErrorMessage(err))
@@ -75,32 +80,8 @@ export default function AdminOrdersPage() {
             Order #{result.id} ·{' '}
             <span className={`badge ${orderStatusBadgeClass(result.status)}`}>{result.status}</span>
           </p>
-          <table className="product-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.items.map((item) => (
-                <tr key={item.productId}>
-                  <td>{item.productId}</td>
-                  <td>{formatPrice(item.unitPriceCents, result.currency)}</td>
-                  <td>{item.quantity}</td>
-                  <td>{formatPrice(item.lineTotalCents, result.currency)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="cart-summary">
-            <div className="cart-total">
-              <span>Total</span>
-              <span>{formatPrice(result.totalCents, result.currency)}</span>
-            </div>
-          </div>
+          <OrderItemsTable items={result.items} currency={result.currency} />
+          <OrderTotals order={result} />
         </div>
       )}
     </div>
