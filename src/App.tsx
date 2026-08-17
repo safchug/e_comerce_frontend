@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import AdminProductsPage from './pages/AdminProductsPage'
+import AdminOrdersPage from './pages/AdminOrdersPage'
 import ProductsPage from './pages/ProductsPage'
 import CartPage from './pages/CartPage'
 import OrderConfirmationPage from './pages/OrderConfirmationPage'
@@ -60,6 +61,14 @@ export default function App() {
             element={
               <ProtectedRoute adminOnly>
                 <AdminProductsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminOrdersPage />
               </ProtectedRoute>
             }
           />

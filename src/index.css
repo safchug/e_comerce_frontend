@@ -282,6 +282,26 @@ body {
   color: #666;
 }
 
+.badge-pending {
+  background: #eceef4;
+  color: #666;
+}
+
+.badge-paid {
+  background: #e8ecfd;
+  color: #3d4de0;
+}
+
+.badge-shipped {
+  background: #fff1e0;
+  color: #b56600;
+}
+
+.badge-cancelled {
+  background: #fdeaea;
+  color: #c0392b;
+}
+
 .product-table {
   width: 100%;
   border-collapse: collapse;
@@ -394,4 +414,12 @@ body {
   color: #666;
   font-size: 0.9rem;
   margin: -0.75rem 0 1.25rem;
+}
+
+.order-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }

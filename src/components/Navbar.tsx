@@ -29,6 +29,7 @@ export default function Navbar() {
             <Link to="/profile">Profile</Link>
             {isAdmin && <Link to="/admin/users">Users</Link>}
             {isAdmin && <Link to="/admin/products">Products</Link>}
+            {isAdmin && <Link to="/admin/orders">Orders</Link>}
             <span className="navbar-user">{user?.email}</span>
             <button type="button" onClick={handleLogout} className="btn btn-secondary">
               Log out

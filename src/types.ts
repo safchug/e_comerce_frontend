@@ -83,10 +83,13 @@ export interface OrderItem {
   lineTotalCents: number
 }
 
+export type OrderStatus = 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+
 export interface Order {
   id: string
   userId: string
   items: OrderItem[]
+  status: OrderStatus
   currency: string
   subtotalCents: number
   discountCents: number
